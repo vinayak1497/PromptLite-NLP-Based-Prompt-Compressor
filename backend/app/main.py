@@ -15,9 +15,13 @@ from .services.document_processor import DocumentProcessor
 app = FastAPI(title="PromptLite API", version="1.0.0")
 # Comma-separated extra origins via ALLOWED_ORIGINS env var (e.g. the Vercel
 # frontend URL in production). Localhost defaults keep local dev working.
+# allow_origin_regex covers Vite auto-increment ports (5173, 5174, ...) so a
+# second `npm run dev` instance doesn't hit "Failed to fetch" CORS errors.
 ALLOWED_ORIGINS = [o.strip() for o in os.environ.get(
-    "ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if o.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+    "ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174").split(",") if o.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS,
+                   allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+                   allow_methods=["*"], allow_headers=["*"])
 analyzer = NLPAnalyzer()
 validator = SemanticValidator()
 protector = SpanProtector()

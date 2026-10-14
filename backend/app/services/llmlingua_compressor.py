@@ -36,8 +36,9 @@ DEFAULT_MODEL = "microsoft/llmlingua-2-xlm-roberta-large-meetingbank"
 FALLBACK_MODEL = "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
 
 # Keep-fraction per mode: balanced keeps ~60% of tokens (40% reduction),
-# aggressive keeps ~35% (60-70% reduction, "caveman" style).
-MODE_RATES: dict[str, float] = {"balanced": 0.6, "aggressive": 0.35}
+# aggressive keeps ~30% (~70% reduction, "caveman" style) so that even with
+# pinned protected spans a 500-token prompt lands well under ~350 tokens.
+MODE_RATES: dict[str, float] = {"balanced": 0.6, "aggressive": 0.30}
 
 MAX_FORCE_TOKENS = 100  # LLMLingua-2 default max_force_token ([NEW0]..[NEW99])
 MIN_CHARS_FOR_LLM = 60  # shorter inputs compress poorly; leave them to spaCy
@@ -95,11 +96,21 @@ class LLMLinguaCompressor:
 
     @staticmethod
     def _force_tokens(text: str, protected_items: list[str]) -> list[str]:
-        """Dedupe protected spans to verbatim substrings, longest first, capped at 100."""
+        """Dedupe protected spans to verbatim substrings, longest first, capped at 100.
+
+        Long constraint/negation sentences (>80 chars) are excluded from pinning:
+        forcing LLMLingua to keep whole sentences verbatim blocks token dropping
+        (the 518→496 symptom). Their atomic parts (numbers, entities, URLs,
+        emails) are still pinned individually via the short items, and digit
+        pinning (force_reserve_digit) stays on, so the protection contract holds
+        without freezing the whole prompt.
+        """
         seen: set[str] = set()
         tokens: list[str] = []
         for item in sorted((p.strip() for p in protected_items), key=len, reverse=True):
             if not item or item in seen or item not in text:
+                continue
+            if len(item) > 80:
                 continue
             seen.add(item)
             tokens.append(item)

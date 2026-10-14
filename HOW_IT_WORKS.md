@@ -81,12 +81,24 @@ There are two engines. `backend/app/main.py` picks per mode:
 2. Strip filler phrases found in step 4 (`Conversational filler: ...`).
 3. Simplify verbose multiword constructions (`RedundancyDetector.MULTIWORD`):
    `a large number of → many`, `due to the fact that → because`,
-   `in order to → to`, `make sure → ensure`, `prior to → before`, ... (1 pass).
+   `in order to → to`, `make sure → ensure`, `prior to → before`, ... (1 pass,
+   3 passes in aggressive).
 4. Strip polite lead-ins (`please note that`, `i think that`, `can you`, ...).
 5. Strip `please ensure/make sure/confirm that`.
 6. Clean leftover punctuation/spacing.
 7. Prefix `Task: ` (e.g. `Analysis: ...`) only when a real task was detected
-   and there is more than one sentence.
+   and there is more than one sentence (skipped in aggressive mode to save tokens).
+
+Aggressive deterministic fallback (used on Render/slim installs where LLMLingua
+is unavailable, and as the safety net locally) additionally runs:
+`AGGRESSIVE_MULTIWORD` deletions first (e.g. `in great detail → ""`,
+`each and every → each`, `as soon as possible → ASAP`), parenthetical removal,
+then protected-masked thinning of articles / low-value adjectives /
+relativizer `that` / `also`, plus dangling-conjunction cleanup. Duplicate
+threshold is lower in aggressive mode (0.72 vs 0.94 safe / 0.88 balanced), so
+near-duplicates are also dropped harder. This is what lets a 518-token prompt
+reach ~230–270 tokens (≈45–55% reduction) even without LLMLingua, while numbers,
+entities, URLs, emails, and constraint keywords survive via masking.
 
 ### Balanced / Aggressive — LLMLingua-2 token dropping with guardrails
 
@@ -94,10 +106,13 @@ There are two engines. `backend/app/main.py` picks per mode:
 `microsoft/llmlingua-2-xlm-roberta-large-meetingbank` (CPU, no API key):
 
 - Keep-fraction: `balanced: 0.6` (~40% fewer tokens),
-  `aggressive: 0.35` (~65% fewer, intentionally terse "caveman" style).
+  `aggressive: 0.30` (~70% fewer, intentionally terse "caveman" style).
 - Inputs under 60 chars skip LLMLingua and use the deterministic pipeline.
-- **Layer 1 — pinning:** every protected span (up to 100, longest first) is
-  passed as `force_tokens`, plus `force_reserve_digit=True` pins all digits.
+- **Layer 1 — pinning:** short protected spans only (≤80 chars, up to 100,
+  longest first) are passed as `force_tokens`, plus `force_reserve_digit=True`
+  pins all digits. Long constraint/negation sentences are excluded from pinning
+  so token dropping is not frozen (their numbers/entities stay pinned
+  individually).
 - **Layer 2 — guarantee:** after compression, any protected span missing from
   the output is re-appended under `Preserved: ...` and reported.
 - `_retokenize()` fixes gluing from extractive dropping
