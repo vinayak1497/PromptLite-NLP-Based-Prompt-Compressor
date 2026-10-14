@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "1bc4a6e6-365f-428b-831d-2d192fac7ffd",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\dataflow-promptlite-nlp-pipeline-20261014-111930\\candidate.json",
+  "output": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\dataflow-promptlite-nlp-pipeline-20261014-111930\\promptlite-nlp-pipeline.html",
+  "specification": {
+    "sha256": "ae298b6699d458055673fee689b845329322d89b7d2822ce93c60e98d3479d1b",
+    "bytes": 4215
+  },
+  "artifact": {
+    "sha256": "9ef7f1b00f0b6c79c4cc54781e06aabc351cbf2ad87150091c2baf098578eeef",
+    "bytes": 762191
+  }
+}

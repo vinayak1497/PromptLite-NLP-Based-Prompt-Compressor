@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "de203601-1b62-400f-8d1c-7aa9f525ccab",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\candidate.json",
+  "output": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\promptlite-system.html",
+  "specification": {
+    "sha256": "d644412299a7178af6f8c2f9b2a385c64c9782eed831284a66f1ba3d4b7d5b87",
+    "bytes": 3873
+  },
+  "artifact": {
+    "sha256": "b5f14d3a6dbf9396b5fa4d3c8538b46e143241197884aa9102312332f3dd64bf",
+    "bytes": 764488
+  }
+}

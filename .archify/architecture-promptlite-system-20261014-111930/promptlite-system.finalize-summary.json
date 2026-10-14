@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\candidate.json",
+    "sha256": "d644412299a7178af6f8c2f9b2a385c64c9782eed831284a66f1ba3d4b7d5b87",
+    "bytes": 3873
+  },
+  "artifact": {
+    "path": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\promptlite-system.html",
+    "sha256": "b5f14d3a6dbf9396b5fa4d3c8538b46e143241197884aa9102312332f3dd64bf",
+    "bytes": 764488
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\promptlite-system.finalize.json",
+    "summaryReceipt": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\promptlite-system.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\Vinayak Umesh Kundar\\Desktop\\nlp project\\.archify\\architecture-promptlite-system-20261014-111930\\promptlite-system.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-13T06:10:07.417Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3426,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 1,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "validator-to-api",
+            "from": "validator",
+            "to": "api",
+            "label": "soften if below floor",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "bends": 4,
+          "stretch": 1.392
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "validator → api needs 4 bends: move node validator or api so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

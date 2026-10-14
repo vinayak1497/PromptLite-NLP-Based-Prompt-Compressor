@@ -1,0 +1,25 @@
+# Render Blueprint for the PromptLite backend (FastAPI).
+# Used as infrastructure-as-code reference; the service can also be
+# created/managed with the Render CLI (`render services create ...`).
+# NOTE: the free tier has ~512 MB RAM, so LLMLingua-2 (~2 GB checkpoint)
+# is disabled and the deterministic spaCy pipeline serves all modes.
+# Heavy ML deps (torch, sentence-transformers, llmlingua) are excluded via
+# requirements-render.txt; the app falls back to lexical similarity.
+services:
+  - type: web
+    name: promptlite-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: "pip install -r requirements-render.txt && python -m spacy download en_core_web_sm"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PROMPTLITE_DISABLE_LLMLINGUA
+        value: 1
+      # Append the Vercel frontend URL after it is deployed, e.g.
+      # "http://localhost:5173,http://127.0.0.1:5173,https://promptlite-xyz.vercel.app"
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:5173,http://127.0.0.1:5173"
