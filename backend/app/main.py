@@ -31,11 +31,22 @@ llm_compressor = LLMLinguaCompressor()
 tokens = LocalTokenCounter()
 documents = DocumentProcessor()
 
-# Minimum MiniLM cosine similarity before softening to a safer mode.
-# Balanced/Aggressive now use information-theoretic token dropping, whose
+# Minimum cosine similarity before softening to a safer mode.
+# Balanced/Aggressive use information-theoretic token dropping, whose
 # intentionally ungrammatical ("caveman") output scores lower than a
 # grammatical rewrite, so their floors sit below Safe's.
 SIMILARITY_FLOOR = {"safe": .90, "balanced": .80, "aggressive": .68}
+# Render/slim installs have no MiniLM and use lexical TF-cosine, which punishes
+# heavy word deletion far harder than embeddings do (a good 55%-reduction
+# aggressive output scores ~0.59 lexically vs ~0.74 on MiniLM). Without lower
+# floors, aggressive would always wrongly soften to balanced on Render and the
+# deployment would show almost no compression (e.g. 518 -> 471). Measured
+# calibration: good outputs score safe/balanced ~0.92, aggressive ~0.59.
+LEXICAL_SIMILARITY_FLOOR = {"safe": .80, "balanced": .65, "aggressive": .45}
+
+
+def _floors() -> dict[str, float]:
+    return LEXICAL_SIMILARITY_FLOOR if validator.model is None else SIMILARITY_FLOOR
 
 @app.get("/api/health", response_model=HealthResponse)
 def health() -> HealthResponse:
@@ -76,7 +87,7 @@ def run_compression(text: str, mode: str) -> CompressResponse:
             warnings.append(f"LLMLingua unavailable ({llm_note}); fell back to deterministic spaCy compression.")
     score = validator.similarity(text, optimized)
     used_mode = mode
-    if score < SIMILARITY_FLOOR[mode] and mode != "safe":
+    if score < _floors()[mode] and mode != "safe":
         fallback_mode = "safe" if mode == "balanced" else "balanced"
         fallback_report = detector.detect(analysis.sentences, fallback_mode)
         fallback, fallback_removed = compressor.compress(analysis, protected, fallback_report, fallback_mode)
